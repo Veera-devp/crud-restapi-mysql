@@ -1,5 +1,6 @@
 package com.basic.crudrestapimysql.controller;
 
+import com.basic.crudrestapimysql.dto.UserDto;
 import com.basic.crudrestapimysql.entity.User;
 import com.basic.crudrestapimysql.service.UserService;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ public class UserController
 {
     private UserService userService;
 
-    @PostMapping
+    /*@PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user)
     {
         User savedUser = userService.createUser(user);
@@ -45,5 +46,43 @@ public class UserController
     {
         userService.deleteUser(userId);
         return new ResponseEntity<>("User Successfully deleted!",HttpStatus.OK);
+    }*/
+    @PostMapping
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto user){
+        UserDto savedUser = userService.createUser(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    }
+
+    // build get user by id REST API
+    // http://localhost:8080/api/users/1
+    @GetMapping("{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long userId){
+        UserDto user = userService.getUserById(userId);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    // Build Get All Users REST API
+    // http://localhost:8080/api/users
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllUsers(){
+        List<UserDto> users = userService.getAllUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    // Build Update User REST API
+    @PutMapping("{id}")
+    // http://localhost:8080/api/users/1
+    public ResponseEntity<UserDto> updateUser(@PathVariable("id") Long userId,
+                                              @RequestBody UserDto user){
+        user.setId(userId);
+        UserDto updatedUser = userService.updateUser(user);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    // Build Delete User REST API
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable("id") Long userId){
+        userService.deleteUser(userId);
+        return new ResponseEntity<>("User successfully deleted!", HttpStatus.OK);
     }
 }

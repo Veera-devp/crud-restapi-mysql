@@ -2,6 +2,8 @@ package com.basic.crudrestapimysql.service.impl;
 
 import com.basic.crudrestapimysql.dto.UserDto;
 import com.basic.crudrestapimysql.entity.User;
+import com.basic.crudrestapimysql.exception.EmailAlreadyExistsException;
+import com.basic.crudrestapimysql.exception.ResourceNotFoundException;
 import com.basic.crudrestapimysql.mapper.AutoUserMapper;
 import com.basic.crudrestapimysql.mapper.UserMapper;
 import com.basic.crudrestapimysql.repository.UserRepository;
@@ -30,6 +32,12 @@ public class UserServiceImpl implements UserService
 
         //User user = modelMapper.map(userDto, User.class);
 
+        Optional<User> optionalUser = userRepository.findByEmail(userDto.getEmail());
+
+        if(optionalUser.isPresent()){
+            throw new EmailAlreadyExistsException("Email Already Exists for User");
+        }
+
         User user = AutoUserMapper.MAPPER.mapToUser(userDto);
 
         User savedUser = userRepository.save(user);
@@ -46,11 +54,12 @@ public class UserServiceImpl implements UserService
 
     @Override
     public UserDto getUserById(Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        User user = optionalUser.get();
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", userId)
+        );
         //return UserMapper.mapToUserDto(user);
         //return modelMapper.map(user, UserDto.class);
-        return AutoUserMapper.MAPPER.mapToUserDto(optionalUser.get());
+        return AutoUserMapper.MAPPER.mapToUserDto(user);
     }
 
     @Override
@@ -68,7 +77,11 @@ public class UserServiceImpl implements UserService
 
     @Override
     public UserDto updateUser(UserDto user) {
-        User existingUser = userRepository.findById(user.getId()).get();
+
+        User existingUser = userRepository.findById(user.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", user.getId())
+        );
+
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setEmail(user.getEmail());
@@ -80,6 +93,11 @@ public class UserServiceImpl implements UserService
 
     @Override
     public void deleteUser(Long userId) {
+
+        User existingUser = userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", userId)
+        );
+
         userRepository.deleteById(userId);
     }
 }

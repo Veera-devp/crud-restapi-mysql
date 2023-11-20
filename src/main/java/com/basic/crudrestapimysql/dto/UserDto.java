@@ -1,14 +1,27 @@
 package com.basic.crudrestapimysql.dto;
 import lombok.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto
-{
+public class UserDto {
+
     private Long id;
+
+    // User first name should not be null or empty
+    @NotEmpty(message = "User first name should not be null or empty")
     private String firstName;
-    private String LastName;
+
+    // User last name should not be null or empty
+    @NotEmpty(message = "User last name should not be null or empty")
+    private String lastName;
+
+    // User email should not be null or empty
+    // Email address should be valid
+    @NotEmpty(message = "User email should not be null or empty")
+    @Email(message = "Email address should be valid")
     private String email;
 }
